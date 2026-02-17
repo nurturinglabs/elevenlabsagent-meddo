@@ -1,0 +1,76 @@
+[
+  {
+    "id": "pat_001",
+    "name": "Ramesh Iyer",
+    "age": 58,
+    "gender": "Male",
+    "phone": "+91-98765-11111",
+    "blood_group": "B+",
+    "allergies": ["Penicillin"],
+    "chronic_conditions": ["Type 2 Diabetes", "Hypertension"],
+    "current_medications": [
+      { "name": "Metformin", "dosage": "500mg", "frequency": "twice daily" },
+      { "name": "Amlodipine", "dosage": "5mg", "frequency": "once daily" },
+      { "name": "Aspirin", "dosage": "75mg", "frequency": "once daily" }
+    ],
+    "emergency_contact": { "name": "Lakshmi Iyer", "relation": "Wife", "phone": "+91-98765-11112" }
+  },
+  {
+    "id": "pat_002",
+    "name": "Kavitha Suresh",
+    "age": 34,
+    "gender": "Female",
+    "phone": "+91-87654-22222",
+    "blood_group": "O+",
+    "allergies": [],
+    "chronic_conditions": ["Hypothyroidism"],
+    "current_medications": [
+      { "name": "Levothyroxine", "dosage": "50mcg", "frequency": "once daily, morning, empty stomach" }
+    ],
+    "emergency_contact": { "name": "Suresh Kumar", "relation": "Husband", "phone": "+91-87654-22223" }
+  },
+  {
+    "id": "pat_003",
+    "name": "Mohammed Farooq",
+    "age": 45,
+    "gender": "Male",
+    "phone": "+91-76543-33333",
+    "blood_group": "A+",
+    "allergies": ["Sulfa drugs", "Ibuprofen"],
+    "chronic_conditions": ["Asthma", "GERD"],
+    "current_medications": [
+      { "name": "Montelukast", "dosage": "10mg", "frequency": "once daily, evening" },
+      { "name": "Salbutamol inhaler", "dosage": "100mcg", "frequency": "as needed" },
+      { "name": "Pantoprazole", "dosage": "40mg", "frequency": "once daily, before breakfast" }
+    ],
+    "emergency_contact": { "name": "Ayesha Farooq", "relation": "Wife", "phone": "+91-76543-33334" }
+  },
+  {
+    "id": "pat_004",
+    "name": "Deepa Krishnan",
+    "age": 67,
+    "gender": "Female",
+    "phone": "+91-65432-44444",
+    "blood_group": "AB+",
+    "allergies": ["Codeine"],
+    "chronic_conditions": ["Osteoarthritis", "Hyperlipidemia", "Mild CKD Stage 2"],
+    "current_medications": [
+      { "name": "Atorvastatin", "dosage": "20mg", "frequency": "once daily, night" },
+      { "name": "Glucosamine", "dosage": "1500mg", "frequency": "once daily" },
+      { "name": "Calcium + Vitamin D3", "dosage": "500mg/250IU", "frequency": "twice daily" }
+    ],
+    "emergency_contact": { "name": "Arun Krishnan", "relation": "Son", "phone": "+91-65432-44445" }
+  },
+  {
+    "id": "pat_005",
+    "name": "Anil Deshmukh",
+    "age": 29,
+    "gender": "Male",
+    "phone": "+91-54321-55555",
+    "blood_group": "O-",
+    "allergies": [],
+    "chronic_conditions": [],
+    "current_medications": [],
+    "emergency_contact": { "name": "Priya Deshmukh", "relation": "Wife", "phone": "+91-54321-55556" }
+  }
+]

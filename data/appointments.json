@@ -1,0 +1,35 @@
+[
+  {
+    "id": "apt_001",
+    "patient_id": "pat_001",
+    "patient_name": "Ramesh Iyer",
+    "date": "2026-03-10",
+    "time": "10:00 AM",
+    "type": "follow_up",
+    "reason": "Diabetes + BP review with lab results",
+    "status": "scheduled",
+    "created_at": "2026-02-10T11:45:00Z"
+  },
+  {
+    "id": "apt_002",
+    "patient_id": "pat_002",
+    "patient_name": "Kavitha Suresh",
+    "date": "2026-03-28",
+    "time": "11:00 AM",
+    "type": "follow_up",
+    "reason": "TSH recheck after dose adjustment",
+    "status": "scheduled",
+    "created_at": "2026-02-14T14:30:00Z"
+  },
+  {
+    "id": "apt_003",
+    "patient_id": "pat_003",
+    "patient_name": "Mohammed Farooq",
+    "date": "2026-02-21",
+    "time": "9:30 AM",
+    "type": "follow_up",
+    "reason": "Asthma exacerbation review",
+    "status": "scheduled",
+    "created_at": "2026-02-16T10:00:00Z"
+  }
+]

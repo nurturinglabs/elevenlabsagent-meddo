@@ -1,0 +1,54 @@
+[
+  {
+    "id": "note_001",
+    "patient_id": "pat_001",
+    "date": "2026-02-10",
+    "mode": "dictate",
+    "soap": {
+      "subjective": "Patient reports increased thirst and frequent urination over the past 2 weeks. Occasional blurred vision in the morning. No chest pain or shortness of breath. Compliance with medications has been irregular — missed Metformin doses 3-4 times last week due to GI discomfort.",
+      "objective": "BP: 148/92 mmHg (elevated). Fasting blood glucose: 186 mg/dL (high). HbA1c: 8.2% (poor control, up from 7.1% in October). Weight: 78 kg (gained 2 kg since last visit). Pedal edema: mild bilateral. Fundoscopy: no retinopathy.",
+      "assessment": "Type 2 Diabetes — worsening glycemic control. Hypertension — suboptimally controlled. Possible early diabetic nephropathy needs monitoring.",
+      "plan": "1. Switch Metformin to extended-release 500mg BD to reduce GI side effects. 2. Add Glimepiride 1mg OD before breakfast. 3. Increase Amlodipine to 10mg. 4. Order: renal function tests (creatinine, eGFR, urine microalbumin). 5. Dietary counseling — reduce rice portions, increase protein. 6. Follow-up in 4 weeks with lab results."
+    },
+    "created_at": "2026-02-10T11:30:00Z"
+  },
+  {
+    "id": "note_002",
+    "patient_id": "pat_001",
+    "date": "2026-01-06",
+    "mode": "dictate",
+    "soap": {
+      "subjective": "Routine follow-up. Patient feeling well. No specific complaints. Taking medications regularly.",
+      "objective": "BP: 138/88 mmHg. Fasting glucose: 142 mg/dL. HbA1c: 7.1%. Weight: 76 kg.",
+      "assessment": "Diabetes — fair control. Hypertension — borderline controlled.",
+      "plan": "Continue current medications. Recheck in 6 weeks. Advised daily walking 30 minutes."
+    },
+    "created_at": "2026-01-06T10:15:00Z"
+  },
+  {
+    "id": "note_003",
+    "patient_id": "pat_002",
+    "date": "2026-02-14",
+    "mode": "dictate",
+    "soap": {
+      "subjective": "Patient complains of persistent fatigue for 3 weeks. Feeling cold despite warm weather. Hair thinning noticed. No mood changes or weight gain.",
+      "objective": "BP: 110/70 mmHg. Pulse: 62 bpm. Thyroid: not palpable. Skin: dry. TSH from last week: 8.4 mIU/L (elevated, was 4.2 three months ago).",
+      "assessment": "Hypothyroidism — dose inadequate, TSH rising. Need to increase Levothyroxine.",
+      "plan": "1. Increase Levothyroxine to 75mcg daily. 2. Recheck TSH + free T4 in 6 weeks. 3. Ensure taking on empty stomach 30 min before food. 4. Iron and B12 levels to be checked. 5. Follow-up in 6 weeks."
+    },
+    "created_at": "2026-02-14T14:00:00Z"
+  },
+  {
+    "id": "note_004",
+    "patient_id": "pat_003",
+    "date": "2026-02-16",
+    "mode": "dictate",
+    "soap": {
+      "subjective": "Acute visit — worsening cough and wheezing for 3 days. Using Salbutamol inhaler 4-5 times daily with partial relief. No fever. Mild chest tightness. GERD symptoms also worse — burning sensation after meals.",
+      "objective": "BP: 130/82 mmHg. SpO2: 95% on room air. Chest: bilateral wheezing, no crackles. Peak flow: 320 L/min (predicted 480 L/min — 67%). Abdomen: mild epigastric tenderness.",
+      "assessment": "Acute asthma exacerbation, moderate severity. GERD flare — may be contributing to bronchospasm.",
+      "plan": "1. Start Prednisolone 40mg daily for 5 days. 2. Add Budesonide-Formoterol 200/6 inhaler BD. 3. Continue Salbutamol as rescue. 4. Increase Pantoprazole to 40mg BD for 2 weeks. 5. Avoid trigger foods (spicy, oily). 6. Review in 5 days. If no improvement, consider chest X-ray."
+    },
+    "created_at": "2026-02-16T09:45:00Z"
+  }
+]
