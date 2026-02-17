@@ -82,7 +82,7 @@ export const MODE_FIRST_MESSAGES: Record<MedMode, string> = {
   summarize: "I can summarize any patient's history. Which patient would you like me to review?",
   pattern: "I can scan for clinical patterns and alerts. Select a patient or say \"check all patients\" for a full review.",
   booking: "Ready to schedule. Which patient needs an appointment?",
-  followup: "Let me pull up your pending follow-ups. One moment...",
+  followup: "Let me pull up your pending follow-ups. One moment....",
 };
 
 export const MODE_LABELS: Record<MedMode, string> = {
