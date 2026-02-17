@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     // Try fuzzy: match any word
     const words = name.toLowerCase().split(/\s+/);
     const fuzzy = patients.filter((p) =>
-      words.some((w) => p.name.toLowerCase().includes(w))
+      words.some((w: string) => p.name.toLowerCase().includes(w))
     );
 
     if (fuzzy.length === 0) {
