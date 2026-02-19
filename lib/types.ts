@@ -5,6 +5,7 @@ export interface Patient {
   gender: "Male" | "Female" | "Other";
   phone: string;
   blood_group: string;
+  language: string;
   allergies: string[];
   chronic_conditions: string[];
   current_medications: Medication[];
@@ -42,6 +43,7 @@ export interface Appointment {
   type: "follow_up" | "new_consultation" | "procedure" | "lab_review";
   reason: string;
   status: "scheduled" | "completed" | "cancelled" | "no_show";
+  language: string;
   created_at: string;
 }
 

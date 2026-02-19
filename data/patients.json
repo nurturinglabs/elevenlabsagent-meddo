@@ -6,6 +6,7 @@
     "gender": "Male",
     "phone": "+91-98765-11111",
     "blood_group": "B+",
+    "language": "Tamil",
     "allergies": ["Penicillin"],
     "chronic_conditions": ["Type 2 Diabetes", "Hypertension"],
     "current_medications": [
@@ -22,6 +23,7 @@
     "gender": "Female",
     "phone": "+91-87654-22222",
     "blood_group": "O+",
+    "language": "Kannada",
     "allergies": [],
     "chronic_conditions": ["Hypothyroidism"],
     "current_medications": [
@@ -36,6 +38,7 @@
     "gender": "Male",
     "phone": "+91-76543-33333",
     "blood_group": "A+",
+    "language": "Hindi",
     "allergies": ["Sulfa drugs", "Ibuprofen"],
     "chronic_conditions": ["Asthma", "GERD"],
     "current_medications": [
@@ -52,6 +55,7 @@
     "gender": "Female",
     "phone": "+91-65432-44444",
     "blood_group": "AB+",
+    "language": "Malayalam",
     "allergies": ["Codeine"],
     "chronic_conditions": ["Osteoarthritis", "Hyperlipidemia", "Mild CKD Stage 2"],
     "current_medications": [
@@ -68,9 +72,58 @@
     "gender": "Male",
     "phone": "+91-54321-55555",
     "blood_group": "O-",
+    "language": "Marathi",
     "allergies": [],
     "chronic_conditions": [],
     "current_medications": [],
     "emergency_contact": { "name": "Priya Deshmukh", "relation": "Wife", "phone": "+91-54321-55556" }
+  },
+  {
+    "id": "pat_006",
+    "name": "Lakshmi Venkatesh",
+    "age": 52,
+    "gender": "Female",
+    "phone": "+91-98765-66666",
+    "blood_group": "A-",
+    "language": "Telugu",
+    "allergies": ["Aspirin"],
+    "chronic_conditions": ["Rheumatoid Arthritis", "Iron Deficiency Anemia"],
+    "current_medications": [
+      { "name": "Methotrexate", "dosage": "15mg", "frequency": "once weekly" },
+      { "name": "Folic acid", "dosage": "5mg", "frequency": "daily except MTX day" },
+      { "name": "Ferrous sulphate", "dosage": "200mg", "frequency": "twice daily" }
+    ],
+    "emergency_contact": { "name": "Venkatesh Rao", "relation": "Husband", "phone": "+91-98765-66667" }
+  },
+  {
+    "id": "pat_007",
+    "name": "Sunil Sharma",
+    "age": 41,
+    "gender": "Male",
+    "phone": "+91-87654-77777",
+    "blood_group": "B-",
+    "language": "Hindi",
+    "allergies": [],
+    "chronic_conditions": ["Migraine", "Anxiety Disorder"],
+    "current_medications": [
+      { "name": "Propranolol", "dosage": "40mg", "frequency": "twice daily" },
+      { "name": "Escitalopram", "dosage": "10mg", "frequency": "once daily, morning" }
+    ],
+    "emergency_contact": { "name": "Rekha Sharma", "relation": "Wife", "phone": "+91-87654-77778" }
+  },
+  {
+    "id": "pat_008",
+    "name": "Priya Nair",
+    "age": 38,
+    "gender": "Female",
+    "phone": "+91-76543-88888",
+    "blood_group": "O+",
+    "language": "Malayalam",
+    "allergies": ["Latex"],
+    "chronic_conditions": ["PCOD"],
+    "current_medications": [
+      { "name": "Myo-inositol", "dosage": "2g", "frequency": "twice daily" }
+    ],
+    "emergency_contact": { "name": "Rajesh Nair", "relation": "Husband", "phone": "+91-76543-88889" }
   }
 ]

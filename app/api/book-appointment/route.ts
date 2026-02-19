@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     type: type as Appointment["type"],
     reason,
     status: "scheduled",
+    language: patient?.language || "English",
     created_at: new Date().toISOString(),
   };
 

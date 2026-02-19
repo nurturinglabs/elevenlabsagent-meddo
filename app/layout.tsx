@@ -10,7 +10,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Meddo - AI Clinical Superpower for Doctors",
   description:
-    "Voice-powered AI clinical assistant with five modes: Dictate, Summarize, Pattern Alert, Voice Booking, and Follow-up",
+    "Voice-powered AI clinical assistant with calendar, patient management, appointment booking, and analytics",
 };
 
 export default function RootLayout({
