@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Search,
@@ -26,12 +21,13 @@ import {
   Pill,
   AlertTriangle,
   Heart,
-  Eye,
   FileText,
   Globe,
   Sparkles,
+  MessageSquare,
 } from "lucide-react";
-import type { ClinicalNote, PatternAlert, Appointment } from "@/lib/types";
+import type { ClinicalNote, PatternAlert, Appointment, Patient } from "@/lib/types";
+import { SendFollowupDialog } from "@/components/send-followup-dialog";
 
 interface EnrichedPatient {
   id: string;
@@ -50,11 +46,6 @@ interface EnrichedPatient {
   alert_counts: { critical: number; warning: number; info: number };
 }
 
-interface PatientDetail extends EnrichedPatient {
-  notes: ClinicalNote[];
-  appointments: Appointment[];
-  alerts: PatternAlert[];
-}
 
 function getInitials(name: string): string {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -92,10 +83,11 @@ function formatDate(d: string) {
 }
 
 export default function PatientsPage() {
+  const router = useRouter();
   const [patients, setPatients] = useState<EnrichedPatient[]>([]);
   const [search, setSearch] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState<PatientDetail | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [followupPatient, setFollowupPatient] = useState<Patient | null>(null);
+  const [followupDialogOpen, setFollowupDialogOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/patients")
@@ -111,11 +103,11 @@ export default function PatientsPage() {
       )
     : patients;
 
-  const handleView = async (patientId: string) => {
+  const handleFollowup = async (patientId: string) => {
     const res = await fetch(`/api/patients/${patientId}`);
     const data = await res.json();
-    setSelectedPatient(data);
-    setSheetOpen(true);
+    setFollowupPatient(data as Patient);
+    setFollowupDialogOpen(true);
   };
 
   return (
@@ -151,14 +143,18 @@ export default function PatientsPage() {
                 <TableHead>Last Visit</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-center">AI Summary</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-center">Quick Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.map((p, i) => {
                 const status = getPatientStatus(p);
                 return (
-                  <TableRow key={p.id} className="hover:bg-slate-50/50">
+                  <TableRow
+                    key={p.id}
+                    className="hover:bg-slate-50/50 cursor-pointer"
+                    onClick={() => router.push(`/patients/${p.id}`)}
+                  >
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold ${getAvatarColor(i)}`}>
@@ -218,9 +214,18 @@ export default function PatientsPage() {
                         <span className="text-xs text-slate-400">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleView(p.id)}>
-                        <Eye className="w-4 h-4" />
+                    <TableCell className="text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFollowup(p.id);
+                        }}
+                        className="text-teal-600 hover:text-teal-700 hover:bg-teal-50 dark:hover:bg-teal-900/30"
+                      >
+                        <MessageSquare className="w-4 h-4 mr-1" />
+                        <span className="text-xs">Follow-up</span>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -231,144 +236,13 @@ export default function PatientsPage() {
         </ScrollArea>
       </Card>
 
-      {/* Patient Detail Sheet */}
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="w-[90vw] sm:w-[540px] overflow-y-auto">
-          {selectedPatient && (
-            <>
-              <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-teal-700" />
-                  {selectedPatient.name}
-                </SheetTitle>
-              </SheetHeader>
 
-              <div className="mt-5 space-y-5">
-                {/* Demographics */}
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-slate-500">Age / Gender</span>
-                    <p className="font-medium">{selectedPatient.age} / {selectedPatient.gender}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-500">Blood Group</span>
-                    <p className="font-medium">{selectedPatient.blood_group}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-500">Language</span>
-                    <p className="font-medium">{selectedPatient.language || "English"}</p>
-                  </div>
-                  <div>
-                    <span className="text-slate-500">Phone</span>
-                    <p className="font-medium">{selectedPatient.phone}</p>
-                  </div>
-                </div>
-
-                {/* Conditions */}
-                {selectedPatient.chronic_conditions.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <Heart className="w-4 h-4 text-teal-600" />
-                      <span className="text-sm font-medium text-slate-600">Conditions</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedPatient.chronic_conditions.map((c) => (
-                        <Badge key={c} variant="secondary" className="bg-teal-50 text-teal-700">
-                          {c}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Allergies */}
-                {selectedPatient.allergies.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <AlertTriangle className="w-4 h-4 text-red-500" />
-                      <span className="text-sm font-medium text-red-600">Allergies</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedPatient.allergies.map((a) => (
-                        <Badge key={a} className="bg-red-100 text-red-700">
-                          {a}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Medications */}
-                {selectedPatient.current_medications.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <Pill className="w-4 h-4 text-teal-600" />
-                      <span className="text-sm font-medium text-slate-600">Medications</span>
-                    </div>
-                    <div className="space-y-1.5">
-                      {selectedPatient.current_medications.map((m) => (
-                        <div key={m.name} className="text-sm bg-slate-50 rounded px-3 py-2 border">
-                          <span className="font-medium">{m.name}</span> {m.dosage}
-                          <span className="text-slate-400 ml-1">— {m.frequency}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Alerts */}
-                {selectedPatient.alerts && selectedPatient.alerts.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-slate-600 mb-1.5">Pattern Alerts</h3>
-                    <div className="space-y-1.5">
-                      {selectedPatient.alerts.map((a) => (
-                        <div
-                          key={a.id}
-                          className={`text-sm rounded p-2.5 border-l-4 ${
-                            a.severity === "critical"
-                              ? "border-l-red-500 bg-red-50"
-                              : a.severity === "warning"
-                              ? "border-l-amber-500 bg-amber-50"
-                              : "border-l-green-500 bg-green-50"
-                          }`}
-                        >
-                          <span className="font-medium text-xs">{a.title}</span>
-                          <p className="text-xs text-slate-500">{a.recommendation}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Visit Notes */}
-                {selectedPatient.notes && selectedPatient.notes.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <FileText className="w-4 h-4 text-slate-500" />
-                      <span className="text-sm font-medium text-slate-600">Visit History</span>
-                    </div>
-                    <div className="space-y-2">
-                      {selectedPatient.notes.map((note) => (
-                        <div key={note.id} className="border rounded-lg p-3 bg-white">
-                          <div className="flex justify-between mb-2">
-                            <span className="text-sm font-medium">{note.date}</span>
-                            <Badge variant="outline" className="text-[10px]">SOAP</Badge>
-                          </div>
-                          <div className="space-y-1 text-xs">
-                            <p><span className="font-bold text-teal-700">S:</span> <span className="text-slate-600 line-clamp-2">{note.soap.subjective}</span></p>
-                            <p><span className="font-bold text-teal-700">A:</span> <span className="text-slate-600">{note.soap.assessment}</span></p>
-                            <p><span className="font-bold text-teal-700">P:</span> <span className="text-slate-600 line-clamp-2">{note.soap.plan}</span></p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
+      {/* Send Follow-up Dialog */}
+      <SendFollowupDialog
+        patient={followupPatient}
+        open={followupDialogOpen}
+        onOpenChange={setFollowupDialogOpen}
+      />
     </div>
   );
 }

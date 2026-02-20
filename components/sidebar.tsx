@@ -5,17 +5,15 @@ import Link from "next/link";
 import {
   Calendar,
   Users,
-  Mic,
   BarChart3,
   Stethoscope,
-  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
-  { href: "/", icon: Calendar, label: "Calendar" },
+  { href: "/dashboard", icon: Calendar, label: "Calendar" },
   { href: "/patients", icon: Users, label: "Patients" },
-  { href: "/book", icon: Mic, label: "Book Appointment" },
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
 ];
 
@@ -31,14 +29,17 @@ export function Sidebar({ todayCount, weekCount, patientCount }: SidebarProps) {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-slate-900 text-white">
       {/* Doctor Profile */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-700/50">
-        <div className="w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center shrink-0">
-          <Stethoscope className="w-5 h-5 text-white" />
+      <div className="flex items-center justify-between gap-3 px-5 py-5 border-b border-slate-700/50">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-teal-600 flex items-center justify-center shrink-0">
+            <Stethoscope className="w-5 h-5 text-white" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold truncate">Dr. Suresh</p>
+            <p className="text-xs text-slate-400">General Physician</p>
+          </div>
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold truncate">Dr. Suresh</p>
-          <p className="text-xs text-slate-400">General Physician</p>
-        </div>
+        <ThemeToggle />
       </div>
 
       {/* Navigation */}

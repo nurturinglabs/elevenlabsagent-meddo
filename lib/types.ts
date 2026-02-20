@@ -4,6 +4,7 @@ export interface Patient {
   age: number;
   gender: "Male" | "Female" | "Other";
   phone: string;
+  email?: string;
   blood_group: string;
   language: string;
   allergies: string[];

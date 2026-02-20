@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Appointment } from "@/lib/types";
+import { AppointmentDetailSheet } from "@/components/appointment-detail-sheet";
 
 const TIME_SLOTS = [
   "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
@@ -17,10 +18,10 @@ const TIME_SLOTS = [
 ];
 
 const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  follow_up: { bg: "bg-blue-50", border: "border-l-blue-500", text: "text-blue-700" },
-  new_consultation: { bg: "bg-amber-50", border: "border-l-amber-500", text: "text-amber-700" },
-  procedure: { bg: "bg-red-50", border: "border-l-red-500", text: "text-red-700" },
-  lab_review: { bg: "bg-emerald-50", border: "border-l-emerald-500", text: "text-emerald-700" },
+  follow_up: { bg: "bg-blue-50 dark:bg-blue-900/30", border: "border-l-blue-500", text: "text-blue-700 dark:text-blue-300" },
+  new_consultation: { bg: "bg-amber-50 dark:bg-amber-900/30", border: "border-l-amber-500", text: "text-amber-700 dark:text-amber-300" },
+  procedure: { bg: "bg-red-50 dark:bg-red-900/30", border: "border-l-red-500", text: "text-red-700 dark:text-red-300" },
+  lab_review: { bg: "bg-emerald-50 dark:bg-emerald-900/30", border: "border-l-emerald-500", text: "text-emerald-700 dark:text-emerald-300" },
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -63,11 +64,12 @@ function formatMonthYear(d: Date): string {
 export default function CalendarPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/patients")
       .then(() => fetch("/api/book-appointment", { method: "GET" }).catch(() => null));
-    // Load appointments from the store
     fetch("/api/appointments")
       .then((res) => res.json())
       .then((data) => setAppointments(data.appointments || []))
@@ -100,13 +102,18 @@ export default function CalendarPage() {
 
   const goToToday = () => setCurrentDate(new Date());
 
+  const handleAppointmentClick = (apt: Appointment) => {
+    setSelectedAppointment(apt);
+    setSheetOpen(true);
+  };
+
   return (
     <div className="p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Calendar</h1>
-          <p className="text-sm text-slate-500">{formatMonthYear(weekDates[0])}</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Calendar</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{formatMonthYear(weekDates[0])}</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={goToToday}>
@@ -128,7 +135,7 @@ export default function CalendarPage() {
           return (
             <div key={key} className="flex items-center gap-1.5 text-xs">
               <div className={`w-3 h-3 rounded-sm ${color.bg} border-l-2 ${color.border}`} />
-              <span className="text-slate-600">{label}</span>
+              <span className="text-slate-600 dark:text-slate-400">{label}</span>
             </div>
           );
         })}
@@ -139,8 +146,8 @@ export default function CalendarPage() {
         <ScrollArea className="h-[calc(100vh-220px)]">
           <div className="min-w-[800px]">
             {/* Day Headers */}
-            <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b bg-slate-50 sticky top-0 z-10">
-              <div className="p-3 text-xs text-slate-400 flex items-center">
+            <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 sticky top-0 z-10">
+              <div className="p-3 text-xs text-slate-400 dark:text-slate-500 flex items-center">
                 <Clock className="w-3.5 h-3.5" />
               </div>
               {weekDates.map((d) => {
@@ -148,10 +155,10 @@ export default function CalendarPage() {
                 return (
                   <div
                     key={formatDateKey(d)}
-                    className={`p-3 text-center border-l ${isToday ? "bg-teal-50" : ""}`}
+                    className={`p-3 text-center border-l border-slate-200 dark:border-slate-700 ${isToday ? "bg-teal-50 dark:bg-teal-900/30" : ""}`}
                   >
-                    <p className="text-xs text-slate-500">{formatDay(d)}</p>
-                    <p className={`text-lg font-bold ${isToday ? "text-teal-600" : "text-slate-900"}`}>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatDay(d)}</p>
+                    <p className={`text-lg font-bold ${isToday ? "text-teal-600 dark:text-teal-400" : "text-slate-900 dark:text-slate-100"}`}>
                       {formatDayNum(d)}
                     </p>
                   </div>
@@ -161,8 +168,8 @@ export default function CalendarPage() {
 
             {/* Time Slots */}
             {TIME_SLOTS.map((time) => (
-              <div key={time} className="grid grid-cols-[80px_repeat(7,1fr)] border-b hover:bg-slate-50/50">
-                <div className="p-2 text-xs text-slate-400 text-right pr-3 pt-3">
+              <div key={time} className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50/50 dark:hover:bg-slate-800/50">
+                <div className="p-2 text-xs text-slate-400 dark:text-slate-500 text-right pr-3 pt-3">
                   {time}
                 </div>
                 {weekDates.map((d) => {
@@ -173,16 +180,17 @@ export default function CalendarPage() {
                   return (
                     <div
                       key={dateKey}
-                      className={`border-l min-h-[52px] p-1 ${isToday ? "bg-teal-50/30" : ""}`}
+                      className={`border-l border-slate-200 dark:border-slate-700 min-h-[52px] p-1 ${isToday ? "bg-teal-50/30 dark:bg-teal-900/20" : ""}`}
                     >
                       {apt && (
                         <div
-                          className={`rounded-md p-1.5 border-l-3 ${TYPE_COLORS[apt.type]?.bg || "bg-gray-50"} ${TYPE_COLORS[apt.type]?.border || "border-l-gray-400"} cursor-pointer hover:shadow-sm transition-shadow`}
+                          onClick={() => handleAppointmentClick(apt)}
+                          className={`rounded-md p-1.5 border-l-3 ${TYPE_COLORS[apt.type]?.bg || "bg-gray-50 dark:bg-gray-800"} ${TYPE_COLORS[apt.type]?.border || "border-l-gray-400"} cursor-pointer hover:shadow-sm transition-shadow`}
                         >
-                          <p className={`text-xs font-medium ${TYPE_COLORS[apt.type]?.text || "text-gray-700"} truncate`}>
+                          <p className={`text-xs font-medium ${TYPE_COLORS[apt.type]?.text || "text-gray-700 dark:text-gray-300"} truncate`}>
                             {apt.patient_name}
                           </p>
-                          <p className="text-[10px] text-slate-500 truncate">{apt.reason}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{apt.reason}</p>
                           <Badge variant="outline" className="text-[9px] px-1 py-0 mt-0.5">
                             {TYPE_LABELS[apt.type] || apt.type}
                           </Badge>
@@ -196,6 +204,13 @@ export default function CalendarPage() {
           </div>
         </ScrollArea>
       </Card>
+
+      {/* Appointment Detail Sheet */}
+      <AppointmentDetailSheet
+        appointment={selectedAppointment}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+      />
     </div>
   );
 }
