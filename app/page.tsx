@@ -324,6 +324,120 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Business Case */}
+      <section className="py-20 px-6 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-slate-900">The Documentation Problem is Massive</h2>
+            <p className="mt-3 text-slate-500 max-w-xl mx-auto">
+              Doctors became doctors to treat patients, not to type notes. The numbers tell the story.
+            </p>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <div className="rounded-xl border border-slate-200 bg-white p-6 text-center">
+              <p className="text-4xl font-bold text-red-600">2x</p>
+              <p className="text-sm text-slate-600 mt-2 leading-snug">
+                EHR time per hour of patient face time
+              </p>
+              <p className="text-[10px] text-slate-400 mt-2">Sinsky et al., Annals of Internal Medicine</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-6 text-center">
+              <p className="text-4xl font-bold text-amber-600">49%</p>
+              <p className="text-sm text-slate-600 mt-2 leading-snug">
+                of a physician&apos;s day spent on EHR and desk work
+              </p>
+              <p className="text-[10px] text-slate-400 mt-2">AMA Physician Time Study, 2024</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-6 text-center">
+              <p className="text-4xl font-bold text-orange-600">80%</p>
+              <p className="text-sm text-slate-600 mt-2 leading-snug">
+                of doctors say documentation impedes patient care
+              </p>
+              <p className="text-[10px] text-slate-400 mt-2">AMIA TrendBurden Survey, 2024</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-6 text-center">
+              <p className="text-4xl font-bold text-teal-600">43%</p>
+              <p className="text-sm text-slate-600 mt-2 leading-snug">
+                physician burnout rate, EHR cited as leading factor
+              </p>
+              <p className="text-[10px] text-slate-400 mt-2">AMA Physician Burnout Tracking, 2024</p>
+            </div>
+          </div>
+
+          {/* Market Opportunity */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 lg:p-10">
+            <div className="grid lg:grid-cols-2 gap-10">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 mb-4">Market Opportunity</h3>
+                <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
+                  <p>
+                    The global AI medical scribe market reached <span className="font-semibold text-slate-900">$1.1B in 2024</span> and
+                    is projected to grow to <span className="font-semibold text-slate-900">$7.8B by 2033</span> at
+                    a ~20% CAGR.
+                  </p>
+                  <p>
+                    Microsoft validated the space by acquiring Nuance for <span className="font-semibold text-slate-900">$19.7 billion</span>.
+                    Abridge recently hit <span className="font-semibold text-slate-900">$100M ARR</span> and raised at a $5.3B valuation.
+                    This is a proven, fast-growing category.
+                  </p>
+                  <p>
+                    India&apos;s healthcare IT market alone is <span className="font-semibold text-slate-900">$16B+ (2024)</span>,
+                    projected to reach $93B by 2033, driven by Ayushman Bharat Digital Mission
+                    and rapid clinic digitization.
+                  </p>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-4">
+                  Sources: DataIntelo, Grand View Research, IMARC Group, Fierce Healthcare
+                </p>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 mb-4">Why Voice AI Wins</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-teal-50 border border-teal-100">
+                    <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center shrink-0 mt-0.5">
+                      <Clock className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Human scribe: ~$40K/year per doctor</p>
+                      <p className="text-xs text-slate-500 mt-0.5">AI scribe: $99-399/month — 80-90% cost reduction</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-blue-50 border border-blue-100">
+                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                      <Mic className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Voice-first = zero behavior change</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Doctors already talk through cases — AI just listens and structures</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-100">
+                    <div className="w-8 h-8 rounded-lg bg-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+                      <Brain className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Beyond notes: clinical intelligence</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Pattern detection, follow-up automation, and real-time alerts add value no human scribe can</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-emerald-50 border border-emerald-100">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                      <Bell className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">ElevenLabs quality voice = trust</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Natural voice summaries feel like a clinical handoff, not a robot reading a database</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-6 bg-slate-900">
         <div className="max-w-3xl mx-auto text-center">
