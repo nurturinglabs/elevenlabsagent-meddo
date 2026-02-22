@@ -1,7 +1,7 @@
 import initialPatients from "@/data/patients.json";
 import initialNotes from "@/data/notes.json";
 import initialAppointments from "@/data/appointments.json";
-import { Patient, ClinicalNote, Appointment, PatternAlert, FollowUpItem } from "./types";
+import { Patient, ClinicalNote, Appointment, PatternAlert, FollowUpItem, PatientSummaryCache } from "./types";
 
 let patients: Patient[] = [...initialPatients] as Patient[];
 let notes: ClinicalNote[] = [...initialNotes] as ClinicalNote[];
@@ -29,6 +29,7 @@ export function getNotesByPatient(patientId: string): ClinicalNote[] {
 
 export function addNote(note: ClinicalNote): ClinicalNote {
   notes.push(note);
+  invalidateSummary(note.patient_id);
   return note;
 }
 
@@ -135,6 +136,100 @@ export function getPatternAlerts(patientId?: string): PatternAlert[] {
     return allAlerts.filter((a) => a.patient_id === patientId);
   }
   return allAlerts;
+}
+
+// ── Patient Summary Cache ──
+const summaryCache = new Map<string, PatientSummaryCache>();
+
+function formatConditionsList(conditions: string[]): string {
+  if (conditions.length === 0) return "no documented chronic conditions";
+  if (conditions.length === 1) return conditions[0];
+  if (conditions.length === 2) return `${conditions[0]} and ${conditions[1]}`;
+  return conditions.slice(0, -1).join(", ") + ", and " + conditions[conditions.length - 1];
+}
+
+function generateSummaryForPatient(patientId: string): PatientSummaryCache | null {
+  const patient = getPatientById(patientId);
+  if (!patient) return null;
+
+  const patientNotes = getNotesByPatient(patientId);
+  const parts: string[] = [];
+
+  // Pronouns for natural speech
+  const obj = patient.gender === "Male" ? "him" : patient.gender === "Female" ? "her" : "them";
+  const poss = patient.gender === "Male" ? "his" : patient.gender === "Female" ? "her" : "their";
+  const subj = patient.gender === "Male" ? "he" : patient.gender === "Female" ? "she" : "they";
+
+  // Opening: conversational intro
+  const conditions = formatConditionsList(patient.chronic_conditions);
+  if (patient.chronic_conditions.length > 0) {
+    parts.push(`Doctor, ${patient.name} is a ${patient.age}-year-old ${patient.gender.toLowerCase()} you're managing for ${conditions}.`);
+  } else {
+    parts.push(`Doctor, ${patient.name} is a ${patient.age}-year-old ${patient.gender.toLowerCase()} with no chronic conditions on file.`);
+  }
+
+  // Clinical picture: natural framing around the SOAP assessment
+  if (patientNotes.length > 0) {
+    const latest = patientNotes[0];
+    const visitDate = new Date(latest.date + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric" });
+    // Clean up the assessment: replace " — " with ", " for natural speech flow
+    const assessment = latest.soap.assessment.replace(/ — /g, ", ").replace(/\.\s*$/, "");
+    parts.push(`When you last saw ${obj} on ${visitDate}, you noted ${assessment}.`);
+  } else {
+    parts.push(`No recent visit notes on file.`);
+  }
+
+  // Allergy: natural warning
+  if (patient.allergies.length > 0) {
+    parts.push(`Just a heads up, ${subj}'s allergic to ${patient.allergies.join(" and ")}.`);
+  }
+
+  const summaryText = parts.join(" ");
+
+  // Key concerns shown on the card (not read aloud)
+  const keyConcerns: string[] = [];
+  if (patientNotes.length > 0) {
+    const assessment = patientNotes[0].soap.assessment.toLowerCase();
+    if (assessment.includes("worsening")) {
+      keyConcerns.push("Condition worsening — needs close monitoring");
+    }
+    if (assessment.includes("exacerbation")) {
+      keyConcerns.push("Acute exacerbation — monitor treatment response");
+    }
+  }
+  if (patient.allergies.length > 0) {
+    keyConcerns.push(`Drug allergies: ${patient.allergies.join(", ")}`);
+  }
+  if (patient.chronic_conditions.length >= 2) {
+    keyConcerns.push("Multiple chronic conditions — consider drug interactions");
+  }
+
+  const cached: PatientSummaryCache = {
+    patient_name: patient.name,
+    summary_text: summaryText,
+    key_concerns: keyConcerns,
+    last_visit_date: patientNotes[0]?.date || null,
+    total_visits: patientNotes.length,
+    generated_at: new Date().toISOString(),
+  };
+
+  summaryCache.set(patientId, cached);
+  return cached;
+}
+
+export function getSummary(patientId: string): PatientSummaryCache | null {
+  const cached = summaryCache.get(patientId);
+  if (cached) return cached;
+  return generateSummaryForPatient(patientId);
+}
+
+export function invalidateSummary(patientId: string): void {
+  summaryCache.delete(patientId);
+}
+
+// Pre-generate summaries for all patients at module init
+for (const p of patients) {
+  generateSummaryForPatient(p.id);
 }
 
 // ── Follow-ups (mock) ──

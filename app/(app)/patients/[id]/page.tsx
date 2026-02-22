@@ -17,10 +17,11 @@ import {
   Sparkles,
   MessageSquare,
 } from "lucide-react";
-import { Patient, ClinicalNote, Appointment, PatternAlert } from "@/lib/types";
+import { Patient, ClinicalNote, Appointment, PatternAlert, MedMode } from "@/lib/types";
 import { PatientInfoCard } from "@/components/patient-info-card";
 import { VisitHistoryTimeline } from "@/components/visit-history-timeline";
 import { SendFollowupDialog } from "@/components/send-followup-dialog";
+import { VoiceAgentPanel } from "@/components/voice-agent-panel";
 
 interface PatientDetailData extends Patient {
   notes: ClinicalNote[];
@@ -39,6 +40,7 @@ export default function PatientDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [followupDialogOpen, setFollowupDialogOpen] = useState(false);
+  const [voiceMode, setVoiceMode] = useState<MedMode | null>(null);
 
   useEffect(() => {
     if (patientId) {
@@ -138,11 +140,21 @@ export default function PatientDetailPage() {
           </div>
 
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setVoiceMode(voiceMode === "dictate" ? null : "dictate")}
+              className={voiceMode === "dictate" ? "bg-teal-50 border-teal-600 text-teal-700" : ""}
+            >
               <Mic className="w-4 h-4 mr-2" />
               Dictate Note
             </Button>
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setVoiceMode(voiceMode === "summarize" ? null : "summarize")}
+              className={voiceMode === "summarize" ? "bg-teal-50 border-teal-600 text-teal-700" : ""}
+            >
               <Sparkles className="w-4 h-4 mr-2" />
               AI Summary
             </Button>
@@ -158,6 +170,18 @@ export default function PatientDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Voice Panel */}
+      {voiceMode && patientData && (
+        <Card className="mb-6 border-teal-200">
+          <CardContent className="pt-6">
+            <VoiceAgentPanel
+              activeMode={voiceMode}
+              selectedPatient={patientData as Patient}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tabs */}
       <div className="border-b border-slate-200 dark:border-slate-700 mb-6">

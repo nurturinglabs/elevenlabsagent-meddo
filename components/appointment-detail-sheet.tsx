@@ -15,13 +15,11 @@ import {
   Clock,
   Mic,
   Sparkles,
-  FileText,
-  AlertCircle,
   ChevronDown,
   ChevronUp,
+  User,
 } from "lucide-react";
 import { Appointment, Patient, ClinicalNote, PatternAlert } from "@/lib/types";
-import { PatientInfoCard } from "./patient-info-card";
 import { VoiceAgentPanel } from "./voice-agent-panel";
 import { MedMode } from "@/lib/types";
 
@@ -64,7 +62,6 @@ export function AppointmentDetailSheet({
     if (appointment && open) {
       fetchPatientData(appointment.patient_id);
     } else {
-      // Reset state when sheet closes
       setPatientData(null);
       setVoiceMode(null);
       setVoicePanelExpanded(false);
@@ -120,47 +117,75 @@ export function AppointmentDetailSheet({
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-4">
           {/* Appointment Info Card */}
-          <Card className="border-teal-200 dark:border-teal-700">
+          <Card className="border-teal-200">
             <CardContent className="pt-6">
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold text-lg dark:text-slate-100">{appointment.patient_name}</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Patient ID: {appointment.patient_id}</p>
+                    <h3 className="font-semibold text-lg">{appointment.patient_name}</h3>
+                    <p className="text-sm text-slate-500">Patient ID: {appointment.patient_id}</p>
                   </div>
                   <Badge className={`${typeColor.bg} ${typeColor.text} border-0`}>
                     {TYPE_LABELS[appointment.type] || appointment.type}
                   </Badge>
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-slate-700 my-3" />
+                <div className="border-t border-slate-200 my-3" />
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-1">
+                    <p className="text-slate-500 flex items-center gap-1.5 mb-1">
                       <Calendar className="w-4 h-4" />
                       Date
                     </p>
-                    <p className="font-medium dark:text-slate-200">{formatDate(appointment.date)}</p>
+                    <p className="font-medium">{formatDate(appointment.date)}</p>
                   </div>
                   <div>
-                    <p className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mb-1">
+                    <p className="text-slate-500 flex items-center gap-1.5 mb-1">
                       <Clock className="w-4 h-4" />
                       Time
                     </p>
-                    <p className="font-medium dark:text-slate-200">{appointment.time}</p>
+                    <p className="font-medium">{appointment.time}</p>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">Reason for Visit</p>
-                  <p className="font-medium dark:text-slate-200">{appointment.reason}</p>
+                  <p className="text-slate-500 text-sm mb-1">Reason for Visit</p>
+                  <p className="font-medium">{appointment.reason}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Compact Patient Context */}
+          {!loading && patientData && (
+            <div className="flex items-center gap-2 px-1 text-sm text-slate-600 flex-wrap">
+              <User className="w-4 h-4 text-teal-600 shrink-0" />
+              <span className="font-medium text-slate-800">{patientData.name}</span>
+              <span className="text-slate-400">&middot;</span>
+              <span>{patientData.age}yo {patientData.gender}</span>
+              {patientData.chronic_conditions.length > 0 && (
+                <>
+                  <span className="text-slate-400">&middot;</span>
+                  <span>{patientData.chronic_conditions.join(", ")}</span>
+                </>
+              )}
+              {patientData.allergies.length > 0 && (
+                <>
+                  <span className="text-slate-400">&middot;</span>
+                  <span className="text-red-600">Allergies: {patientData.allergies.join(", ")}</span>
+                </>
+              )}
+            </div>
+          )}
+
+          {loading && (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600" />
+            </div>
+          )}
 
           {/* Voice Action Buttons */}
           <div className="grid grid-cols-2 gap-3">
@@ -185,25 +210,25 @@ export function AppointmentDetailSheet({
 
           {/* Voice Panel (Expandable) */}
           {voiceMode && voicePanelExpanded && patientData && (
-            <Card className="border-teal-200 dark:border-teal-700">
+            <Card className="border-teal-200">
               <div
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50"
                 onClick={() => setVoicePanelExpanded(!voicePanelExpanded)}
               >
                 <div className="flex items-center gap-2">
                   {voiceMode === "dictate" ? (
-                    <Mic className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Mic className="w-4 h-4 text-teal-600" />
                   ) : (
-                    <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    <Sparkles className="w-4 h-4 text-teal-600" />
                   )}
-                  <span className="font-medium text-sm dark:text-slate-200">
+                  <span className="font-medium text-sm">
                     {voiceMode === "dictate" ? "Voice Dictation" : "AI Patient Summary"}
                   </span>
                 </div>
                 {voicePanelExpanded ? (
-                  <ChevronUp className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                  <ChevronUp className="w-4 h-4 text-slate-400" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
                 )}
               </div>
               {voicePanelExpanded && (
@@ -217,127 +242,10 @@ export function AppointmentDetailSheet({
             </Card>
           )}
 
-          {/* Patient Information */}
-          {loading && (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600" />
-            </div>
-          )}
-
-          {!loading && patientData && patientData.name && (
-            <>
-              <PatientInfoCard patient={patientData as Patient} compact />
-
-              {/* Pattern Alerts */}
-              {patientData.alerts && patientData.alerts.length > 0 && (
-                <Card className="border-amber-200 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-900/20">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-2 mb-3">
-                      <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-sm text-amber-900 dark:text-amber-100">Pattern Alerts</h4>
-                        <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
-                          {patientData.alerts.length} alert(s) for this patient
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      {patientData.alerts.slice(0, 3).map((alert) => (
-                        <div
-                          key={alert.id}
-                          className="p-3 rounded-lg bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <p className="font-medium text-sm dark:text-slate-100">{alert.title}</p>
-                              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{alert.description}</p>
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className={
-                                alert.severity === "critical"
-                                  ? "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
-                                  : alert.severity === "warning"
-                                  ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-700"
-                                  : "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700"
-                              }
-                            >
-                              {alert.severity}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                      {patientData.alerts.length > 3 && (
-                        <p className="text-xs text-amber-700 dark:text-amber-300 text-center">
-                          +{patientData.alerts.length - 3} more alerts
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Recent Visit Notes */}
-              {patientData.notes && patientData.notes.length > 0 && (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center gap-2 mb-4">
-                      <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      <h4 className="font-semibold text-sm dark:text-slate-100">Recent Visits</h4>
-                    </div>
-                    <div className="space-y-3">
-                      {patientData.notes.slice(0, 3).map((note) => (
-                        <div
-                          key={note.id}
-                          className="p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-                        >
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                              {new Date(note.date).toLocaleDateString()}
-                            </p>
-                            <Badge variant="outline" className="text-[10px]">
-                              SOAP
-                            </Badge>
-                          </div>
-                          <div className="space-y-1.5 text-xs">
-                            {note.soap.subjective && (
-                              <div>
-                                <span className="font-medium text-slate-700 dark:text-slate-300">S:</span>{" "}
-                                <span className="text-slate-600 dark:text-slate-400">
-                                  {note.soap.subjective.slice(0, 100)}
-                                  {note.soap.subjective.length > 100 && "..."}
-                                </span>
-                              </div>
-                            )}
-                            {note.soap.assessment && (
-                              <div>
-                                <span className="font-medium text-slate-700 dark:text-slate-300">A:</span>{" "}
-                                <span className="text-slate-600 dark:text-slate-400">
-                                  {note.soap.assessment.slice(0, 100)}
-                                  {note.soap.assessment.length > 100 && "..."}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      {patientData.notes.length > 3 && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-                          +{patientData.notes.length - 3} more visits
-                        </p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </>
-          )}
-
           {!loading && !patientData && (
-            <Card className="border-red-200 dark:border-red-700 bg-red-50/50 dark:bg-red-900/20">
+            <Card className="border-red-200 bg-red-50/50">
               <CardContent className="pt-6">
-                <div className="flex items-center gap-2 text-red-700 dark:text-red-300">
-                  <AlertCircle className="w-5 h-5" />
+                <div className="flex items-center gap-2 text-red-700">
                   <p className="text-sm font-medium">Unable to load patient data</p>
                 </div>
               </CardContent>

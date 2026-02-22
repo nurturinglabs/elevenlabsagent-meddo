@@ -69,4 +69,13 @@ export interface FollowUpItem {
   last_visit: string;
 }
 
+export interface PatientSummaryCache {
+  patient_name: string;
+  summary_text: string;
+  key_concerns: string[];
+  last_visit_date: string | null;
+  total_visits: number;
+  generated_at: string;
+}
+
 export type MedMode = "dictate" | "summarize" | "pattern" | "booking" | "followup";

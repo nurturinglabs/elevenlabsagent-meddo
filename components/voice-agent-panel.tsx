@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff, Phone, PhoneOff } from "lucide-react";
+import { Mic, MicOff, Phone, PhoneOff, Volume2, VolumeX } from "lucide-react";
 import { AgentOrb } from "./agent-orb";
 import { TranscriptPanel, TranscriptMessage } from "./transcript-panel";
 import {
@@ -23,9 +23,131 @@ import { MedMode, Patient, PatternAlert, FollowUpItem } from "@/lib/types";
 interface VoiceAgentPanelProps {
   activeMode: MedMode;
   selectedPatient: Patient | null;
+  onNoteSaved?: () => void;
 }
 
-export function VoiceAgentPanel({ activeMode, selectedPatient }: VoiceAgentPanelProps) {
+export function VoiceAgentPanel({ activeMode, selectedPatient, onNoteSaved }: VoiceAgentPanelProps) {
+  // ── Summarize mode: direct API + ElevenLabs TTS ──
+  const [summaryData, setSummaryData] = useState<PatientSummaryData | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [ttsStatus, setTtsStatus] = useState<"idle" | "loading" | "playing">("idle");
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const summaryFetched = useRef(false);
+  const prevModeRef = useRef<MedMode>(activeMode);
+
+  // Reset summary state when mode changes
+  useEffect(() => {
+    if (prevModeRef.current !== activeMode) {
+      prevModeRef.current = activeMode;
+      summaryFetched.current = false;
+      setSummaryData(null);
+      setSummaryLoading(false);
+      setSummaryError(null);
+      setTtsStatus("idle");
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    }
+  }, [activeMode]);
+
+  useEffect(() => {
+    if (activeMode === "summarize" && selectedPatient && !summaryFetched.current) {
+      summaryFetched.current = true;
+      fetchAndReadSummary(selectedPatient.id);
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [activeMode, selectedPatient]);
+
+  const fetchAndReadSummary = async (patientId: string) => {
+    setSummaryLoading(true);
+    setSummaryError(null);
+    try {
+      const res = await fetch("/api/summarize-history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ patient_id: patientId }),
+      });
+      if (!res.ok) throw new Error("Failed to fetch summary");
+      const data = await res.json();
+
+      const summary: PatientSummaryData = {
+        patient_name: data.patient_name,
+        summary_text: data.summary_text,
+        key_concerns: data.key_concerns || [],
+        last_visit_date: data.last_visit_date || null,
+      };
+      setSummaryData(summary);
+      setSummaryLoading(false);
+
+      // Read the clinical brief via ElevenLabs TTS
+      await playTTS(data.summary_text);
+    } catch (err) {
+      console.error("Summary fetch error:", err);
+      setSummaryError("Failed to load patient summary");
+      setSummaryLoading(false);
+    }
+  };
+
+  const playTTS = async (text: string) => {
+    // Stop any existing playback
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
+    setTtsStatus("loading");
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!res.ok) throw new Error("TTS generation failed");
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+
+      audio.onplay = () => setTtsStatus("playing");
+      audio.onended = () => {
+        setTtsStatus("idle");
+        URL.revokeObjectURL(url);
+      };
+      audio.onerror = () => {
+        setTtsStatus("idle");
+        URL.revokeObjectURL(url);
+      };
+
+      audioRef.current = audio;
+      await audio.play();
+    } catch (err) {
+      console.error("TTS error:", err);
+      setTtsStatus("idle");
+    }
+  };
+
+  const handleStopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setTtsStatus("idle");
+  };
+
+  const handleReplay = () => {
+    if (!summaryData) return;
+    playTTS(summaryData.summary_text);
+  };
+
+  // ── Other modes: full ElevenLabs conversational AI ──
   const [messages, setMessages] = useState<TranscriptMessage[]>([]);
   const [soapNote, setSoapNote] = useState<SOAPNoteDisplayData | null>(null);
   const [patientSummary, setPatientSummary] = useState<PatientSummaryData | null>(null);
@@ -142,7 +264,6 @@ export function VoiceAgentPanel({ activeMode, selectedPatient }: VoiceAgentPanel
       await navigator.mediaDevices.getUserMedia({ audio: true });
       await conversation.startSession({ agentId, connectionType: "webrtc" });
 
-      // Send patient context if selected
       if (selectedPatient) {
         const ctx = `Current patient: ${selectedPatient.name}, ${selectedPatient.age}yo ${selectedPatient.gender}. Conditions: ${selectedPatient.chronic_conditions.join(", ") || "None"}. Medications: ${selectedPatient.current_medications.map((m) => `${m.name} ${m.dosage}`).join(", ") || "None"}. Allergies: ${selectedPatient.allergies.join(", ") || "None"}.`;
         conversation.sendContextualUpdate(ctx);
@@ -155,6 +276,28 @@ export function VoiceAgentPanel({ activeMode, selectedPatient }: VoiceAgentPanel
   const handleStop = useCallback(async () => {
     await conversation.endSession();
   }, [conversation]);
+
+  const handleSaveNote = useCallback(async () => {
+    if (!soapNote || !selectedPatient) return;
+    try {
+      const res = await fetch("/api/save-note", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: selectedPatient.id,
+          subjective: soapNote.subjective,
+          objective: soapNote.objective,
+          assessment: soapNote.assessment,
+          plan: soapNote.plan,
+        }),
+      });
+      if (res.ok) {
+        onNoteSaved?.();
+      }
+    } catch (err) {
+      console.error("Save note error:", err);
+    }
+  }, [soapNote, selectedPatient, onNoteSaved]);
 
   const handleSendReminder = useCallback(async (patientId: string) => {
     try {
@@ -181,6 +324,75 @@ export function VoiceAgentPanel({ activeMode, selectedPatient }: VoiceAgentPanel
     return "Disconnecting...";
   })();
 
+  // ── Summarize mode: instant API fetch + ElevenLabs TTS ──
+  if (activeMode === "summarize") {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        {/* Loading state */}
+        {summaryLoading && (
+          <div className="flex flex-col items-center gap-2 py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600" />
+            <p className="text-sm font-medium text-slate-500">Loading summary...</p>
+          </div>
+        )}
+
+        {/* Error state */}
+        {summaryError && (
+          <p className="text-sm text-red-500 py-2">{summaryError}</p>
+        )}
+
+        {/* TTS generating indicator */}
+        {ttsStatus === "loading" && !summaryLoading && (
+          <div className="flex items-center gap-2 py-1">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-600" />
+            <p className="text-xs text-teal-600 font-medium">Generating voice...</p>
+          </div>
+        )}
+
+        {/* Speaking indicator */}
+        {ttsStatus === "playing" && (
+          <div className="flex items-center gap-2 py-1">
+            <div className="flex items-center gap-0.5">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-1 bg-teal-500 rounded-full animate-pulse"
+                  style={{ height: `${8 + i * 4}px`, animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-teal-600 font-medium">Reading summary...</p>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleStopAudio}
+              className="text-slate-400 hover:text-slate-600 h-6 w-6 p-0"
+            >
+              <VolumeX className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        )}
+
+        {/* Summary card */}
+        {summaryData && <PatientSummaryCard data={summaryData} />}
+
+        {/* Replay button after speech ends */}
+        {summaryData && ttsStatus === "idle" && !summaryLoading && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleReplay}
+            className="text-teal-600 hover:text-teal-700 gap-1.5 text-xs"
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            Read again
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  // ── All other modes: full ElevenLabs conversational AI ──
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Agent Orb */}
@@ -216,8 +428,9 @@ export function VoiceAgentPanel({ activeMode, selectedPatient }: VoiceAgentPanel
 
       {/* Mode-Specific Output */}
       <div className="w-full space-y-3">
-        {activeMode === "dictate" && soapNote && <SOAPNoteCard data={soapNote} />}
-        {activeMode === "summarize" && patientSummary && <PatientSummaryCard data={patientSummary} />}
+        {activeMode === "dictate" && soapNote && (
+          <SOAPNoteCard data={soapNote} onSave={handleSaveNote} />
+        )}
         {activeMode === "pattern" && patternAlerts && <PatternAlertCards data={patternAlerts} />}
         {activeMode === "booking" && appointmentConfirm && <AppointmentConfirmCard data={appointmentConfirm} />}
         {activeMode === "followup" && followUpQueue && (

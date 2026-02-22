@@ -28,7 +28,7 @@ export interface SOAPNoteDisplayData {
   plan: string;
 }
 
-export function SOAPNoteCard({ data }: { data: SOAPNoteDisplayData }) {
+export function SOAPNoteCard({ data, onSave }: { data: SOAPNoteDisplayData; onSave?: () => void }) {
   const [editing, setEditing] = useState(false);
   const [soap, setSoap] = useState(data);
 
@@ -81,7 +81,7 @@ export function SOAPNoteCard({ data }: { data: SOAPNoteDisplayData }) {
             {editing ? <Save className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
             {editing ? "Done Editing" : "Edit"}
           </Button>
-          <Button size="sm" className="gap-1.5 bg-teal-700 hover:bg-teal-800">
+          <Button size="sm" className="gap-1.5 bg-teal-700 hover:bg-teal-800" onClick={onSave}>
             <CheckCircle2 className="w-3.5 h-3.5" />
             Approve & Save
           </Button>
